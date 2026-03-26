@@ -27,7 +27,9 @@ metadata:
 L-Space/
   projects.md
   projects-kanban.md
-  projects/
+  projects-archive.md
+  Projects/
+    Archive/
     <project-slug>/
       README.md
       tasks.md
@@ -38,6 +40,7 @@ L-Space/
 
 - `projects.md` is the master project list.
 - `projects-kanban.md` is the top-level project board.
+- `projects-archive.md` records archived projects.
 - Each project folder contains its own tasks board, task table, and memory.
 
 ## Prerequisites
@@ -65,7 +68,7 @@ obsidian vault=Notes daily
 obsidian vault="My Vault" search query="test"
 
 # Create a project note file (repeat for each file needed)
-obsidian vault=Work create name="L-Space/projects/new-project/README" content="# New Project"
+obsidian vault=Work create name="L-Space/Projects/New-Project/README" content="# New Project"
 ```
 
 ## Parameter rules
@@ -92,7 +95,18 @@ obsidian vault=Work create name="L-Space/projects/new-project/README" content="#
 ## Kanban and task sync rules
 
 - Update project status in both `L-Space/projects.md` and `L-Space/projects-kanban.md`.
-- Update task status in both `L-Space/projects/<project-slug>/tasks.md` and `L-Space/projects/<project-slug>/kanban.md`.
+- Update task status in both `L-Space/Projects/<project-slug>/tasks.md` and `L-Space/Projects/<project-slug>/kanban.md`.
 - Keep statuses aligned to: `todo`, `in_progress`, `blocked`, `done`.
-- Keep memory append-only in `L-Space/projects/<project-slug>/memory.md`.
+- Keep memory append-only in `L-Space/Projects/<project-slug>/memory.md`.
 - If CLI cannot perform a specific edit cleanly, update markdown directly while preserving structure.
+
+## Archive rule (projects only)
+
+- Apply archiving only to `L-Space/projects-kanban.md`.
+- If `done` has more than 10 project cards, archive oldest done projects until 10 remain.
+- For each archived project:
+  - Move `L-Space/Projects/<project-slug>/` to `L-Space/Projects/Archive/<project-slug>/`.
+  - Remove it from `L-Space/projects.md` active table.
+  - Remove its card from `L-Space/projects-kanban.md`.
+  - Add an entry to `L-Space/projects-archive.md`.
+- Do not apply this rule to per-project task boards (`L-Space/Projects/<project-slug>/kanban.md`).
