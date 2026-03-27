@@ -25,23 +25,23 @@ metadata:
 
 ```text
 L-Space/
-  projects.md
-  projects-kanban.md
-  projects-archive.md
+  Projects.md
+  Projects-Kanban.md
+  Projects-Archive.md
   Projects/
     Archive/
     <project-slug>/
       README.md
-      tasks.md
-      kanban.md
-      memory.md
-      log.md
+      Tasks/
+      Kanban.md
+      Memory.md
+      Log.md
 ```
 
-- `projects.md` is the master project list.
-- `projects-kanban.md` is the top-level project board.
-- `projects-archive.md` records archived projects.
-- Each project folder contains its own tasks board, task table, and memory.
+- `Projects.md` is the master project list.
+- `Projects-Kanban.md` is the top-level project board.
+- `Projects-Archive.md` records archived projects.
+- Each project folder contains its own task board, task notes folder, and memory.
 
 ## Prerequisites
 
@@ -69,6 +69,9 @@ obsidian vault="My Vault" search query="test"
 
 # Create a project note file (repeat for each file needed)
 obsidian vault=Work create name="L-Space/Projects/New-Project/README" content="# New Project"
+obsidian vault=Work create name="L-Space/Projects/New-Project/Kanban" content="# Kanban"
+obsidian vault=Work create name="L-Space/Projects/New-Project/Memory" content="# Memory"
+obsidian vault=Work create name="L-Space/Projects/New-Project/Log" content="# Log"
 ```
 
 ## Parameter rules
@@ -94,19 +97,20 @@ obsidian vault=Work create name="L-Space/Projects/New-Project/README" content="#
 
 ## Kanban and task sync rules
 
-- Update project status in both `L-Space/projects.md` and `L-Space/projects-kanban.md`.
-- Update task status in both `L-Space/Projects/<project-slug>/tasks.md` and `L-Space/Projects/<project-slug>/kanban.md`.
+- Update project status in both `L-Space/Projects.md` and `L-Space/Projects-Kanban.md`.
+- Update task status in `L-Space/Projects/<project-slug>/Kanban.md` and the linked `L-Space/Projects/<project-slug>/Tasks/<task-slug>.md` note.
 - Keep statuses aligned to: `todo`, `in_progress`, `blocked`, `done`.
-- Keep memory append-only in `L-Space/Projects/<project-slug>/memory.md`.
+- Keep memory append-only in `L-Space/Projects/<project-slug>/Memory.md`.
+- Keep each task note updated with what was actually implemented under an `Implemented` section.
 - If CLI cannot perform a specific edit cleanly, update markdown directly while preserving structure.
 
 ## Archive rule (projects only)
 
-- Apply archiving only to `L-Space/projects-kanban.md`.
+- Apply archiving only to `L-Space/Projects-Kanban.md`.
 - If `done` has more than 10 project cards, archive oldest done projects until 10 remain.
 - For each archived project:
   - Move `L-Space/Projects/<project-slug>/` to `L-Space/Projects/Archive/<project-slug>/`.
-  - Remove it from `L-Space/projects.md` active table.
-  - Remove its card from `L-Space/projects-kanban.md`.
-  - Add an entry to `L-Space/projects-archive.md`.
-- Do not apply this rule to per-project task boards (`L-Space/Projects/<project-slug>/kanban.md`).
+  - Remove it from `L-Space/Projects.md` active table.
+  - Remove its card from `L-Space/Projects-Kanban.md`.
+  - Add an entry to `L-Space/Projects-Archive.md`.
+- Do not apply this rule to per-project task boards (`L-Space/Projects/<project-slug>/Kanban.md`).
