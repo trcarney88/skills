@@ -1,48 +1,44 @@
 ---
 name: context7
 description: |
-  Use the ctx7 CLI to fetch library documentation. Activate when you need the current docs for any
-  library, or user tells you to check the docs, mentions "ctx7" or "context7".
+  Use the Context7 MCP tools to fetch current library documentation. Activate when you need current
+  docs for any library, or when the user asks to check docs, mentions "ctx7", or mentions "context7".
 license: MIT
 compatibility: opencode
 metadata:
   audience: engineers
-  tool: ctx7
+  tool: context7-mcp
 ---
 
-# ctx7 CLI
+# Context7 MCP
 
-The Context7 CLI fetches up-to-date library documentation. Use it like so:
+Context7 provides up-to-date library documentation through MCP tools. Prefer the MCP tools when they are available:
 
-```bash
-bunx ctx7
-```
+- `context7_resolve-library-id` - resolve a package/product name to a Context7-compatible library ID.
+- `context7_query-docs` - retrieve and query current documentation for a resolved library ID.
 
-Do not install anything, use the bunx command exactly like that.
+Only use the `bunx ctx7` CLI as a fallback if the MCP tools are unavailable.
 
 # Quick Reference
 
-```bash
-# Documentation
-bunx ctx7 library <name> <query>           # Step 1: resolve library ID
-bunx ctx7 docs <libraryId> <query>         # Step 2: fetch docs
-```
+1. Resolve the library ID with `context7_resolve-library-id` unless the user already provided a Context7 library ID in `/org/project` or `/org/project/version` format.
+2. Query documentation with `context7_query-docs` using the resolved library ID.
+3. If the first documentation query is insufficient, retry `context7_query-docs` with `researchMode: true`.
 
 # Documentation Commands
 
 Retrieves and queries up-to-date documentation and code examples from Context7 for any programming library or framework. Two-step workflow: resolve the library name to get its ID, then query docs using that ID.
 
-If the user already provided a library ID in `/org/project` or `/org/project/version` format, pass it directly to `ctx7 docs`.
+If the user already provided a library ID in `/org/project` or `/org/project/version` format, pass it directly to `context7_query-docs`.
 
 ## Step 1: Resolve a Library
 
 Resolves a package/product name to a Context7-compatible library ID and returns matching libraries.
 
-```bash
-ctx7 library react "How to clean up useEffect with async operations"
-ctx7 library nextjs "How to set up app router with middleware"
-ctx7 library prisma "How to define one-to-many relations with cascade delete"
-```
+Use `context7_resolve-library-id` with:
+
+- `libraryName`: the official package or product name, for example `React`, `Next.js`, or `Prisma`.
+- `query`: the user's documentation question or task, written without sensitive or confidential details.
 
 Always pass a `query` argument - it is required and directly affects result ranking. Use the user's intent to form the query, which helps disambiguate when multiple libraries share a similar name. Do not include any sensitive or confidential information such as API keys, passwords, credentials, personal data, or proprietary code in your query.
 
@@ -71,40 +67,31 @@ Each result includes:
 4. If no good matches exist, clearly state this and suggest query refinements
 5. For ambiguous queries, request clarification before proceeding with a best-guess match
 
-IMPORTANT: Do not call `ctx7 library` more than 3 times per question. If you cannot find what you need after 3 calls, use the best result you have.
+IMPORTANT: Do not call `context7_resolve-library-id` more than 3 times per question. If you cannot find what you need after 3 calls, use the best result you have.
 
 ### Version-specific IDs
 
 If the user mentions a specific version, use a version-specific library ID:
 
-```bash
-# General (latest indexed)
-ctx7 docs /vercel/next.js "How to set up app router"
+Use the general ID for the latest indexed docs, for example `/vercel/next.js`.
 
-# Version-specific
-ctx7 docs /vercel/next.js/v14.3.0-canary.87 "How to set up app router"
-```
+Use a version-specific ID when the user asks about a specific version, for example `/vercel/next.js/v14.3.0-canary.87`.
 
-The available versions are listed in the `ctx7 library` output. Use the closest match to what the user specified.
-
-```bash
-# Output as JSON for scripting
-ctx7 library react "How to use hooks for state management" --json | jq '.[0].id'
-```
+The available versions are listed in the `context7_resolve-library-id` output. Use the closest match to what the user specified.
 
 ## Step 2: Query Documentation
 
 Retrieves up-to-date documentation and code examples for the resolved library.
 
-You must call `ctx7 library` first to obtain the exact Context7-compatible library ID required to use this command, UNLESS the user explicitly provides a library ID in the format `/org/project` or `/org/project/version`.
+You must call `context7_resolve-library-id` first to obtain the exact Context7-compatible library ID required to use this command, UNLESS the user explicitly provides a library ID in the format `/org/project` or `/org/project/version`.
 
-```bash
-ctx7 docs /facebook/react "How to clean up useEffect with async operations"
-ctx7 docs /vercel/next.js "How to add authentication middleware to app router"
-ctx7 docs /prisma/prisma "How to define one-to-many relations with cascade delete"
-```
+Use `context7_query-docs` with:
 
-IMPORTANT: Do not call `ctx7 docs` more than 3 times per question. If you cannot find what you need after 3 calls, use the best information you have.
+- `libraryId`: the exact Context7 library ID, for example `/reactjs/react.dev`, `/vercel/next.js`, or `/prisma/prisma`.
+- `query`: the user's documentation question or task, written specifically and without sensitive or confidential details.
+- `researchMode`: `false` for the first query; retry with `true` only if the first result does not answer the question.
+
+IMPORTANT: Do not call `context7_query-docs` more than 3 times per question. If you cannot find what you need after 3 calls, use the best information you have.
 
 ### Writing good queries
 
@@ -121,18 +108,18 @@ Use the user's full question as the query when possible - vague one-word queries
 
 The output contains two types of content: code snippets (titled, with language-tagged blocks) and info snippets (prose explanations with breadcrumb context).
 
-```bash
-# Output as structured JSON
-ctx7 docs /facebook/react "How to use hooks for state management" --json
-
-# Pipe to other tools - output is clean when not in a TTY (no spinners or colors)
-ctx7 docs /facebook/react "How to use hooks for state management" | head -50
-ctx7 docs /vercel/next.js "How to add middleware for route protection" | grep -A5 "middleware"
-```
-
 # Common Mistakes
 
 - Library IDs require a `/` prefix - `/facebook/react` not `facebook/react`
-- Always run `ctx7 library` first - `ctx7 docs react "hooks"` will fail without a valid ID
-- Repository format for skills is `/owner/repo` - e.g., `ctx7 skills install /anthropics/skills`
-- `skills generate` requires login - run `ctx7 login` first
+- Always run `context7_resolve-library-id` first unless the user provides a valid `/org/project` or `/org/project/version` library ID.
+- Do not use the CLI when MCP tools are connected and available.
+- Do not include API keys, credentials, personal data, or proprietary code in Context7 queries.
+
+# CLI Fallback
+
+If MCP tools are unavailable, use the CLI exactly like this without installing anything:
+
+```bash
+bunx ctx7 library <name> <query>
+bunx ctx7 docs <libraryId> <query>
+```
